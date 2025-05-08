@@ -1,11 +1,11 @@
 
 resource "azurerm_resource_group" "this" {
-  name     = "Attribute"
+  name     = var.resource_group_name
   location = "East US"
 }
 
 resource "azurerm_storage_account" "this" {
-  name                = "attrb${substr(md5(data.azurerm_subscription.current.subscription_id), 0, 15)}"
+  name                = local.storage_account_name
   resource_group_name = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
 
@@ -14,14 +14,14 @@ resource "azurerm_storage_account" "this" {
 }
 
 resource "azurerm_storage_container" "this" {
-  name = "exports"
+  name = var.storage_container_name
 
   storage_account_id = azurerm_storage_account.this.id
 }
 
 resource "azurerm_user_assigned_identity" "this" {
   location            = azurerm_resource_group.this.location
-  name                = "Attribute"
+  name                = var.managed_identity_name
   resource_group_name = azurerm_resource_group.this.name
 }
 

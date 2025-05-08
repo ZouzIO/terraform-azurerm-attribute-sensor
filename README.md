@@ -48,7 +48,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_organization_id"></a> [organization\_id](#input\_organization\_id) | (**Required**) The Organization ID provided by Attribute. | `string` | n/a | yes |
 | <a name="input_token"></a> [token](#input\_token) | (**Required**) The token to authenticate with the Attribute API. | `string` | n/a | yes |
-| <a name="input_subscription_name"></a> [subscription\_name](#input\_subscription\_name) | (*Optional*) The Azure Subscription name. If not provided, the account name will be extracted with the datasource. | `string` | `""` | no |
+| <a name="input_subscription_name"></a> [subscription\_name](#input\_subscription\_name) | (*Optional*) The Azure Subscription name. If not provided, the subscription name will be extracted with the datasource. | `string` | `""` | no |
 
 ## Outputs
 

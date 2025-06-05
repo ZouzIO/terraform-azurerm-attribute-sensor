@@ -14,7 +14,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_attribute-sensor"></a> [attribute-sensor](#module\_attribute-sensor) | ../../ | n/a |
+| <a name="module_attribute-sensor"></a> [attribute-sensor](#module\_attribute-sensor) | ZouzIO/attribute-sensor/azurerm | ~> 1.0 |
 
 ## Resources
 

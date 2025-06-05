@@ -7,6 +7,75 @@ The module creates the following resources:
 - Managed Identity
 - Billing Data Export
 
+## Required permissions
+In order to use this module, the user/service principal must have the following permissions:
+- Microsoft.Resources/subscriptions/resourceGroups/read
+- Microsoft.Resources/subscriptions/resourceGroups/write
+- Microsoft.Resources/subscriptions/read
+- Microsoft.Storage/storageAccounts/read
+- Microsoft.Storage/storageAccounts/write
+- Microsoft.Storage/storageAccounts/listkeys/action
+- Microsoft.Storage/storageAccounts/blobServices/containers/read
+- Microsoft.Storage/storageAccounts/blobServices/containers/write
+- Microsoft.Storage/storageAccounts/blobServices/read
+- Microsoft.Storage/storageAccounts/fileServices/read
+- Microsoft.ManagedIdentity/userAssignedIdentities/read
+- Microsoft.ManagedIdentity/userAssignedIdentities/write
+- Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials/read
+- Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials/write
+- Microsoft.Authorization/roleAssignments/read
+- Microsoft.Authorization/roleAssignments/write
+- Microsoft.CostManagement/exports/read
+- Microsoft.CostManagement/exports/write
+
+
+The following custom role can be used to assign the required permissions:
+```hcl
+resource "azurerm_role_definition" "attribute_sensor_terraform" {
+  name        = "AttributeSensorTerraform"
+  scope       = "/subscriptions/<YOUR_SUBSCRIPTION_ID>"
+  description = "Custom role for deploying attribute-sensor module and related resources"
+
+  permissions {
+    actions = [
+      # Resource Group
+      "Microsoft.Resources/subscriptions/resourceGroups/read",
+      "Microsoft.Resources/subscriptions/resourceGroups/write",
+
+      # Subscription Read
+      "Microsoft.Resources/subscriptions/read",
+
+      # Storage
+      "Microsoft.Storage/storageAccounts/read",
+      "Microsoft.Storage/storageAccounts/write",
+      "Microsoft.Storage/storageAccounts/listkeys/action",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/write",
+      "Microsoft.Storage/storageAccounts/blobServices/read",
+      "Microsoft.Storage/storageAccounts/fileServices/read",
+
+      # Managed Identity + Federated Credential
+      "Microsoft.ManagedIdentity/userAssignedIdentities/read",
+      "Microsoft.ManagedIdentity/userAssignedIdentities/write",
+      "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials/read",
+      "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials/write",
+
+      # Role Assignments
+      "Microsoft.Authorization/roleAssignments/read",
+      "Microsoft.Authorization/roleAssignments/write",
+
+      # Cost Management Export
+      "Microsoft.CostManagement/exports/read",
+      "Microsoft.CostManagement/exports/write",
+    ]
+    not_actions = []
+  }
+
+  assignable_scopes = [
+    "/subscriptions/<YOUR_SUBSCRIPTION_ID>",
+  ]
+}
+```
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

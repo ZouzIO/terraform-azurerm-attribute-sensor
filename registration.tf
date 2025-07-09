@@ -18,4 +18,11 @@ data "http" "attribute_registration" {
     "storage_account_url" = azurerm_storage_account.this.primary_blob_endpoint
     }
   ))
+
+  depends_on = [
+    azurerm_role_assignment.subscription,
+    azurerm_role_assignment.storage_account,
+    azurerm_federated_identity_credential.this,
+    azapi_resource.export
+  ]
 }

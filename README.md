@@ -126,7 +126,5 @@ No modules.
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_client_id"></a> [client\_id](#output\_client\_id) | n/a |
+No outputs.
 <!-- END_TF_DOCS -->

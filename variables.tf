@@ -35,5 +35,10 @@ variable "managed_identity_name" {
   type        = string
   description = "(*Optional*) The name of the managed identity. If not provided, the managed identity name will be extracted with the datasource."
   default     = "Attribute"
+}
 
+variable "blob_storage_allowlist" {
+  type        = bool
+  description = "(*Optional*) Whether to enforce the allowlist on the storage account. Defaults to false."
+  default     = false
 }

@@ -11,6 +11,18 @@ resource "azurerm_storage_account" "this" {
 
   account_tier             = "Standard"
   account_replication_type = "LRS"
+
+  dynamic "network_rules" {
+    for_each = var.blob_storage_allowlist ? [1] : []
+    content {
+      default_action = "Deny"
+      ip_rules = [
+        "35.224.163.103",
+        "34.41.229.120"
+      ]
+      bypass = ["AzureServices"]
+    }
+  }
 }
 
 resource "azurerm_storage_container" "this" {
@@ -88,4 +100,9 @@ resource "azapi_resource" "export" {
       exportDescription     = "Attribute FOCUS Export"
     }
   }
+}
+
+output "client_id" {
+  value = azurerm_user_assigned_identity.this.client_id
+
 }

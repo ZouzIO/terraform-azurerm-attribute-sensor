@@ -16,8 +16,11 @@ data "http" "attribute_registration" {
     "storage_container"   = azurerm_storage_container.this.name
     "storage_dir"         = "focus/AttributeExport"
     "storage_account_url" = azurerm_storage_account.this.primary_blob_endpoint
+    "module_info" = {
+      "version" = data.modtm_module_source.this.module_version
+      "source"  = data.modtm_module_source.this.module_source
     }
-  ))
+  }))
 
   depends_on = [
     azurerm_role_assignment.subscription,

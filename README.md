@@ -83,6 +83,7 @@ resource "azurerm_role_definition" "attribute_sensor_terraform" {
 |------|---------|
 | <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) | >= 2.0.0, < 3.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.0, <5.0 |
+| <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) | >= 0.3.5 |
 
 ## Providers
 
@@ -91,6 +92,7 @@ resource "azurerm_role_definition" "attribute_sensor_terraform" {
 | <a name="provider_azapi"></a> [azapi](#provider\_azapi) | >= 2.0.0, < 3.0 |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.0, <5.0 |
 | <a name="provider_http"></a> [http](#provider\_http) | n/a |
+| <a name="provider_modtm"></a> [modtm](#provider\_modtm) | >= 0.3.5 |
 
 ## Modules
 
@@ -110,6 +112,7 @@ No modules.
 | [azurerm_user_assigned_identity.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
 | [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 | [http_http.attribute_registration](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
+| [modtm_module_source.this](https://registry.terraform.io/providers/azure/modtm/latest/docs/data-sources/module_source) | data source |
 
 ## Inputs
 
@@ -126,5 +129,7 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_registration_details"></a> [registration\_details](#output\_registration\_details) | Details of the registration request sent to the Attribute Sensor API. |
 <!-- END_TF_DOCS -->

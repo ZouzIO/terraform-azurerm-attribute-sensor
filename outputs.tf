@@ -1,13 +1,6 @@
-data "http" "attribute_registration" {
-  request_headers = {
-    "Content-Type"  = "application/json"
-    "Authorization" = "Bearer ${var.token}",
-  }
-
-  url    = "https://sensor.app.attrb.io/api/v1/azure"
-  method = "POST"
-
-  request_body = jsonencode(merge({
+output "registration_details" {
+  description = "Details of the registration request sent to the Attribute Sensor API."
+  value = {
     "organization_id"     = var.organization_id
     "tenant_id"           = data.azurerm_subscription.current.tenant_id
     "subscription_id"     = data.azurerm_subscription.current.subscription_id
@@ -20,12 +13,5 @@ data "http" "attribute_registration" {
       "version" = data.modtm_module_source.this.module_version
       "source"  = data.modtm_module_source.this.module_source
     }
-  }))
-
-  depends_on = [
-    azurerm_role_assignment.subscription,
-    azurerm_role_assignment.storage_account,
-    azurerm_federated_identity_credential.this,
-    azapi_resource.export
-  ]
+  }
 }

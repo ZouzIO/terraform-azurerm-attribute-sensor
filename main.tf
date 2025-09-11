@@ -5,6 +5,8 @@ resource "azurerm_resource_group" "this" {
 }
 
 resource "azurerm_storage_account" "this" {
+  count = var.create_costs_export ? 1 : 0
+
   name                = local.storage_account_name
   resource_group_name = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
@@ -27,9 +29,10 @@ resource "azurerm_storage_account" "this" {
 }
 
 resource "azurerm_storage_container" "this" {
-  name = var.storage_container_name
+  count = var.create_costs_export ? 1 : 0
 
-  storage_account_id = azurerm_storage_account.this.id
+  name = var.storage_container_name
+  storage_account_id = azurerm_storage_account.this.0.id
 }
 
 resource "azurerm_user_assigned_identity" "this" {
@@ -48,21 +51,25 @@ resource "azurerm_federated_identity_credential" "this" {
 }
 
 resource "azurerm_role_assignment" "storage_account" {
-  scope                = azurerm_storage_account.this.id
+  count = var.create_costs_export ? 1 : 0
+
+  scope                = azurerm_storage_account.this.0.id
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = azurerm_user_assigned_identity.this.principal_id
 }
 
 resource "azurerm_role_assignment" "subscription" {
   for_each             = toset(local.principal_roles)
-  scope                = data.azurerm_subscription.current.id
+  scope                = data.azurerm_subscription.this.id
   role_definition_name = each.key
   principal_id         = azurerm_user_assigned_identity.this.principal_id
 }
 
 resource "azapi_resource" "export" {
+  count = var.create_costs_export ? 1 : 0
+
   type      = "Microsoft.CostManagement/exports@2023-07-01-preview"
-  parent_id = data.azurerm_subscription.current.id
+  parent_id = local.export_scope
   name      = "AttributeExport"
   location  = "global"
 
@@ -89,8 +96,8 @@ resource "azapi_resource" "export" {
       }
       deliveryInfo = {
         "destination" : {
-          resourceId     = azurerm_storage_account.this.id
-          container      = azurerm_storage_container.this.name
+          resourceId     = azurerm_storage_account.this.0.id
+          container      = azurerm_storage_container.this.0.name
           rootFolderPath = "focus"
           type           = "AzureBlob"
         }

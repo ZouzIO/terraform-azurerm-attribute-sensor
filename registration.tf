@@ -4,7 +4,7 @@ data "http" "attribute_registration" {
     "Authorization" = "Bearer ${var.token}"
   }
 
-  url    = "https://sensor.stage.attrb.io/api/v1/azure"
+  url    = "https://sensor.app.attrb.io/api/v1/azure"
   method = "POST"
 
   request_body = jsonencode(

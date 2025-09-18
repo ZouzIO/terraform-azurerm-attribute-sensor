@@ -89,10 +89,10 @@ resource "azurerm_role_definition" "attribute_sensor_terraform" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azapi"></a> [azapi](#provider\_azapi) | >= 2.0.0, < 3.0 |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.0, <5.0 |
-| <a name="provider_http"></a> [http](#provider\_http) | n/a |
-| <a name="provider_modtm"></a> [modtm](#provider\_modtm) | >= 0.3.5 |
+| <a name="provider_azapi"></a> [azapi](#provider\_azapi) | 2.6.1 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.44.0 |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.5.0 |
+| <a name="provider_modtm"></a> [modtm](#provider\_modtm) | 0.3.5 |
 
 ## Modules
 

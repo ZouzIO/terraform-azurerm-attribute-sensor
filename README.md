@@ -110,7 +110,7 @@ No modules.
 | [azurerm_storage_account.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [azurerm_storage_container.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource |
 | [azurerm_user_assigned_identity.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
-| [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
+| [azurerm_subscription.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 | [http_http.attribute_registration](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
 | [modtm_module_source.this](https://registry.terraform.io/providers/azure/modtm/latest/docs/data-sources/module_source) | data source |
 
@@ -120,12 +120,13 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_organization_id"></a> [organization\_id](#input\_organization\_id) | (**Required**) The Organization ID provided by Attribute. | `string` | n/a | yes |
 | <a name="input_token"></a> [token](#input\_token) | (**Required**) The token to authenticate with the Attribute API. | `string` | n/a | yes |
+| <a name="input_billing_account_id"></a> [billing\_account\_id](#input\_billing\_account\_id) | (*Optional*) The Billing Account ID. If not provided, the Costs Export scope will be the providers subscription. | `string` | `""` | no |
 | <a name="input_blob_storage_allowlist"></a> [blob\_storage\_allowlist](#input\_blob\_storage\_allowlist) | (*Optional*) Whether to enforce the allowlist on the storage account. Defaults to false. | `bool` | `false` | no |
-| <a name="input_managed_identity_name"></a> [managed\_identity\_name](#input\_managed\_identity\_name) | (*Optional*) The name of the managed identity. If not provided, the managed identity name will be extracted with the datasource. | `string` | `"Attribute"` | no |
-| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (*Optional*) The name of the resource group. If not provided, the resource group name will be extracted with the datasource. | `string` | `"Attribute"` | no |
-| <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | (*Optional*) The name of the storage account. If not provided, the storage account name will be extracted with the datasource. | `string` | `""` | no |
-| <a name="input_storage_container_name"></a> [storage\_container\_name](#input\_storage\_container\_name) | (*Optional*) The name of the storage container. If not provided, the storage container name will be extracted with the datasource. | `string` | `"exports"` | no |
-| <a name="input_subscription_name"></a> [subscription\_name](#input\_subscription\_name) | (*Optional*) The Azure Subscription name. If not provided, the subscription name will be extracted with the datasource. | `string` | `""` | no |
+| <a name="input_create_costs_export"></a> [create\_costs\_export](#input\_create\_costs\_export) | (*Optional*) Whether to create the Cost Management Export. Defaults to true. | `bool` | `true` | no |
+| <a name="input_managed_identity_name"></a> [managed\_identity\_name](#input\_managed\_identity\_name) | (*Optional*) The name of the managed identity. If not provided, the managed identity name will be `Attribute`. | `string` | `"Attribute"` | no |
+| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (*Optional*) The name of the resource group. If not provided, the resource group name will be `Attribute`. | `string` | `"Attribute"` | no |
+| <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | (*Optional*) The name of the storage account. If not provided, the storage account name will be extracted from the provider. | `string` | `""` | no |
+| <a name="input_storage_container_name"></a> [storage\_container\_name](#input\_storage\_container\_name) | (*Optional*) The name of the storage container. If not provided, the storage container name will be generated from the subscription id. | `string` | `"exports"` | no |
 
 ## Outputs
 

@@ -3,9 +3,9 @@ The module provisions all required infrastracture resources for the Attribute Se
 ## Resources created
 The module creates the following resources:
 - Resource group
-- Storage Account to store the Billing Export data
 - Managed Identity
-- Billing Data Export
+- Storage Account to store the Billing Export data (__optional, can be disabled via input variable__)
+- Billing Data Export (__optional, can be disabled via input variable__)
 
 ## Required permissions
 In order to use this module, the user/service principal must have the following permissions:
@@ -76,6 +76,34 @@ resource "azurerm_role_definition" "attribute_sensor_terraform" {
   ]
 }
 ```
+## Providing the Billing Account ID
+By default, the Billing Export will be created at the subscription scope. If you want to create the export at the billing account scope, you need to provide the `billing_account_id` input variable, i.e.:
+```hcl
+module "attribute-sensor" {
+  source  = "ZouzIO/attribute-sensor/azurerm"
+  version = "2.0.1"
+
+  organization_id = var.organization_id
+  token           = var.token
+
+  billing_account_id = "<YOUR_BILLING_ACCOUNT_ID>"
+}
+```
+
+## Skipping the Billing Export creation
+If you want to skip the creation of the Billing Export and associated resources (i.e. while having a Management Group-scoped Billing Export), you can set the `create_costs_export` input variable to `false`, i.e.:
+```hcl
+module "attribute-sensor" {
+  source  = "ZouzIO/attribute-sensor/azurerm"
+  version = "2.0.1"
+
+  organization_id     = var.organization_id
+  token               = var.token
+
+  create_costs_export = false
+}
+```
+In that case, only the Resource Group and Managed Identity will be created, skipping the Storage Account and Billing Export creation.
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

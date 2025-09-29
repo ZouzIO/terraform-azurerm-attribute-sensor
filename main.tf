@@ -31,7 +31,7 @@ resource "azurerm_storage_account" "this" {
 resource "azurerm_storage_container" "this" {
   count = var.create_costs_export ? 1 : 0
 
-  name = var.storage_container_name
+  name               = var.storage_container_name
   storage_account_id = azurerm_storage_account.this.0.id
 }
 
@@ -72,8 +72,6 @@ resource "azapi_resource" "export" {
   parent_id = local.export_scope
   name      = "AttributeExport"
   location  = "global"
-
-
 
   dynamic "identity" {
     for_each = var.blob_storage_allowlist ? [1] : []

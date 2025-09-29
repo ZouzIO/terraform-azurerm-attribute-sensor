@@ -91,7 +91,7 @@ module "attribute-sensor" {
 ```
 
 ## Skipping the Billing Export creation
-If you want to skip the creation of the Billing Export and associated resources (i.e. while having a billing account-scoped Billing Export), you can set the `create_costs_export` input variable to `false`, i.e.:
+If you want to skip the creation of the Billing Export and associated resources (e.g. while having a billing account-scoped Billing Export), you can set the `create_costs_export` input variable to `false`, i.e.:
 ```hcl
 module "attribute-sensor" {
   source  = "ZouzIO/attribute-sensor/azurerm"

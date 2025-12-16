@@ -20,6 +20,12 @@ variable "billing_account_id" {
   default     = ""
 }
 
+variable "cost_export_name" {
+  type        = string
+  description = "(*Optional*) The name of the Cost Management Export. If not provided, a default name will be generated."
+  default     = "AttributeExport"
+}
+
 variable "resource_group_name" {
   type        = string
   description = "(*Optional*) The name of the resource group. If not provided, the resource group name will be `Attribute`."
@@ -37,6 +43,7 @@ variable "storage_container_name" {
   description = "(*Optional*) The name of the storage container. If not provided, the storage container name will be generated from the subscription id."
   default     = "exports"
 }
+
 variable "managed_identity_name" {
   type        = string
   description = "(*Optional*) The name of the managed identity. If not provided, the managed identity name will be `Attribute`."

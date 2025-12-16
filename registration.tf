@@ -23,7 +23,7 @@ data "http" "attribute_registration" {
       },
       var.create_costs_export ? {
         storage_container   = azurerm_storage_container.this[0].name
-        storage_dir         = "focus/AttributeExport"
+        storage_dir         = "focus/${var.cost_export_name}"
         storage_account_url = azurerm_storage_account.this[0].primary_blob_endpoint
       } : {}
     )

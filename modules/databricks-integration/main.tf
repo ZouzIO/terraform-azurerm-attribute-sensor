@@ -28,11 +28,6 @@ resource "databricks_permissions" "cluster_autostart" {
     service_principal_name = databricks_service_principal.this.application_id
     permission_level       = "CAN_RESTART"
   }
-
-  access_control {
-    service_principal_name = databricks_service_principal.this.application_id
-    permission_level       = "CAN_ATTACH_TO"
-  }
 }
 
 resource "databricks_permission_assignment" "workspace_user" {

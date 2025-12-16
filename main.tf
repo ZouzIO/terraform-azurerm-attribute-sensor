@@ -70,7 +70,7 @@ resource "azapi_resource" "export" {
 
   type      = "Microsoft.CostManagement/exports@2023-07-01-preview"
   parent_id = local.export_scope
-  name      = "AttributeExport"
+  name      = var.cost_export_name
   location  = "global"
 
   dynamic "identity" {

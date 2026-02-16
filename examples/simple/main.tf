@@ -8,4 +8,7 @@ module "attribute-sensor" {
   cost_export_name      = var.cost_export_name
   storage_account_name  = var.storage_account_name
   managed_identity_name = var.managed_identity_name
+  location              = var.location
+  general_tags          = var.general_tags
+  resource_tags         = var.resource_tags
 }

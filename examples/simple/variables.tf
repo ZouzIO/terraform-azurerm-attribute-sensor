@@ -37,3 +37,21 @@ variable "create_costs_export" {
   description = "(*Optional*) Whether to create the costs export resources."
   default     = true
 }
+
+variable "resource_tags" {
+  type        = map(map(string))
+  default     = {}
+  description = "(*Optional*) Additional tags to apply to specific resources created by the module."
+}
+
+variable "general_tags" {
+  type        = map(string)
+  default     = {}
+  description = "(*Optional*) The tags to apply to the resources created by the module."
+}
+
+variable "location" {
+  type        = string
+  description = "(*Optional*) Resources location. Defaults to East US."
+  default     = "East US"
+}

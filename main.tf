@@ -1,7 +1,9 @@
 
 resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
-  location = "East US"
+  location = var.location
+
+  tags = local.resource_group_tags
 }
 
 resource "azurerm_storage_account" "this" {
@@ -26,6 +28,8 @@ resource "azurerm_storage_account" "this" {
       bypass = ["AzureServices"]
     }
   }
+
+  tags = local.storage_account_tags
 }
 
 resource "azurerm_storage_container" "this" {
@@ -39,6 +43,8 @@ resource "azurerm_user_assigned_identity" "this" {
   location            = azurerm_resource_group.this.location
   name                = var.managed_identity_name
   resource_group_name = azurerm_resource_group.this.name
+
+  tags = local.user_assigned_identity_tags
 }
 
 resource "azurerm_federated_identity_credential" "this" {

@@ -55,3 +55,21 @@ variable "blob_storage_allowlist" {
   description = "(*Optional*) Whether to enforce the allowlist on the storage account. Defaults to false."
   default     = false
 }
+
+variable "location" {
+  type        = string
+  description = "(*Optional*) Resources location. Defaults to East US."
+  default     = "East US"
+}
+
+variable "resource_tags" {
+  type        = map(map(string))
+  default     = {}
+  description = "(*Optional*) Additional tags to apply to specific resources created by the module."
+}
+
+variable "general_tags" {
+  type        = map(string)
+  default     = {}
+  description = "(*Optional*) The tags to apply to the resources created by the module."
+}

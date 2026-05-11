@@ -1,4 +1,6 @@
 data "http" "attribute_registration" {
+  for_each = data.azurerm_subscription.registration
+
   request_headers = {
     "Content-Type"  = "application/json"
     "Authorization" = "Bearer ${var.token}"
@@ -11,9 +13,9 @@ data "http" "attribute_registration" {
     merge(
       {
         organization_id    = var.organization_id
-        tenant_id          = data.azurerm_subscription.this.tenant_id
-        subscription_id    = data.azurerm_subscription.this.subscription_id
-        subscription_name  = data.azurerm_subscription.this.display_name
+        tenant_id          = each.value.tenant_id
+        subscription_id    = each.value.subscription_id
+        subscription_name  = each.value.display_name
         client_id          = azurerm_user_assigned_identity.this.client_id
         billing_account_id = var.billing_account_id != "" ? var.billing_account_id : null
         module_info = {
@@ -21,7 +23,7 @@ data "http" "attribute_registration" {
           source  = data.modtm_module_source.this.module_source
         }
       },
-      var.create_costs_export ? {
+      (each.key == data.azurerm_subscription.this.subscription_id && var.create_costs_export) ? {
         storage_container   = azurerm_storage_container.this[0].name
         storage_dir         = "focus/${var.cost_export_name}"
         storage_account_url = azurerm_storage_account.this[0].primary_blob_endpoint

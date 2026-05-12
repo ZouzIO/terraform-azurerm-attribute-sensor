@@ -55,3 +55,15 @@ variable "location" {
   description = "(*Optional*) Resources location. Defaults to East US."
   default     = "East US"
 }
+
+variable "billing_account_id" {
+  type        = string
+  description = "(*Optional*) Passed through to the module's `billing_account_id` input."
+  default     = ""
+}
+
+variable "scope_wide_registration" {
+  type        = bool
+  description = "(*Optional*) Passed through to the module's `scope_wide_registration` input."
+  default     = false
+}

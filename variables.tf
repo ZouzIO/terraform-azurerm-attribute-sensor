@@ -16,8 +16,14 @@ variable "create_costs_export" {
 
 variable "billing_account_id" {
   type        = string
-  description = "(*Optional*) The Billing Account ID. If not provided, the Costs Export scope will be the providers subscription."
+  description = "(*Optional*) The resource ID used as the Cost Management Export's `parent_id`. Accepts any supported Cost Management scope — most commonly a Billing Account (`/providers/Microsoft.Billing/billingAccounts/{id}`) or a Management Group (`/providers/Microsoft.Management/managementGroups/{name}`). When `scope_wide_registration = true`, this must be a management group resource ID. The variable name is historical. If empty, the export is anchored at the provider's default subscription."
   default     = ""
+}
+
+variable "scope_wide_registration" {
+  type        = bool
+  description = "(*Optional*) When true, the `Monitoring Reader` role assignment is created at the scope given by `billing_account_id` (which must be a management group resource ID), and the module registers every subscription under that management group (recursively) with Attribute instead of only the provider's default subscription. Cost Management Export fields are only sent in the registration for the provider's default subscription."
+  default     = false
 }
 
 variable "cost_export_name" {

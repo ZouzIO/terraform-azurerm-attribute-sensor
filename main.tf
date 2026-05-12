@@ -66,9 +66,19 @@ resource "azurerm_role_assignment" "storage_account" {
 
 resource "azurerm_role_assignment" "subscription" {
   for_each             = toset(local.principal_roles)
-  scope                = data.azurerm_subscription.this.id
+  scope                = local.principal_role_scope
   role_definition_name = each.key
   principal_id         = azurerm_user_assigned_identity.this.principal_id
+
+  lifecycle {
+    precondition {
+      condition = !var.scope_wide_registration || contains(
+        data.azurerm_management_group.this[0].all_subscription_ids,
+        data.azurerm_subscription.this.subscription_id,
+      )
+      error_message = "scope_wide_registration = true requires the provider's default subscription to be a member of the target management group (directly or via a child management group)."
+    }
+  }
 }
 
 resource "azapi_resource" "export" {

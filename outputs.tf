@@ -32,3 +32,8 @@ output "storage_account_url" {
 output "subscription_id" {
   value = data.azurerm_subscription.this.subscription_id
 }
+
+output "registered_subscription_ids" {
+  description = "Subscription IDs that the module registered with Attribute. A single-element list (the provider's default subscription) when `scope_wide_registration = false`; every subscription under `billing_account_id` (recursively, via `all_subscription_ids`) when `true`."
+  value       = local.registration_subscription_ids
+}

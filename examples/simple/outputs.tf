@@ -13,3 +13,7 @@ output "storage_account_url" {
 output "registered_subscription_ids" {
   value = module.attribute-sensor.registered_subscription_ids
 }
+
+output "cost_export_id" {
+  value = module.attribute-sensor.cost_export_id
+}

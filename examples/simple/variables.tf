@@ -67,3 +67,9 @@ variable "scope_wide_registration" {
   description = "(*Optional*) Passed through to the module's `scope_wide_registration` input."
   default     = false
 }
+
+variable "management_group_ids" {
+  type        = list(string)
+  description = "(*Optional*) Passed through to the module's `management_group_ids` input."
+  default     = []
+}

@@ -13,4 +13,5 @@ module "attribute-sensor" {
   resource_tags           = var.resource_tags
   billing_account_id      = var.billing_account_id
   scope_wide_registration = var.scope_wide_registration
+  management_group_ids    = var.management_group_ids
 }

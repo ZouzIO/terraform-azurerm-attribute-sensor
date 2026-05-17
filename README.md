@@ -28,10 +28,10 @@ In order to use this module, the user/service principal must have the following 
 - `Microsoft.CostManagement/exports/read`
 - `Microsoft.CostManagement/exports/write`
 
-When `scope_wide_registration = true`, the deploying principal additionally needs the following at the **management group scope**:
+When `scope_wide_registration = true`, the deploying principal additionally needs the following at **each management group listed in `management_group_ids`**:
 - `Microsoft.Management/managementGroups/read` — used by the `azurerm_management_group` data source to enumerate child subscriptions.
 - `Microsoft.Resources/subscriptions/read` on every child subscription — used by the per-subscription `azurerm_subscription` data sources to resolve each subscription's tenant ID and display name. Granting `Reader` at MG scope is the simplest way to satisfy this (it inherits to all child subs).
-- `Microsoft.Authorization/roleAssignments/write` plus the right to delegate the `Monitoring Reader` role — the assignment is created at the management group scope instead of the subscription. The built-in `User Access Administrator` role satisfies both the action and the delegation check.
+- `Microsoft.Authorization/roleAssignments/write` plus the right to delegate the `Monitoring Reader` role — one assignment is created per listed management group instead of at subscription scope. The built-in `User Access Administrator` role satisfies both the action and the delegation check.
 
 The Cost Management Export and storage resources stay anchored at the provider's default subscription even in management-group-wide mode, so the existing `Microsoft.CostManagement/exports/write` permission listed above (at the subscription scope) is sufficient — no MG-scoped export permission is needed.
 
@@ -90,7 +90,7 @@ Billing Account scope (format: `/providers/Microsoft.Billing/billingAccounts/{bi
 ```hcl
 module "attribute-sensor" {
   source  = "ZouzIO/attribute-sensor/azurerm"
-  version = "2.0.1"
+  version = "~> 2"
 
   organization_id = var.organization_id
   token           = var.token
@@ -99,26 +99,12 @@ module "attribute-sensor" {
 }
 ```
 
-Management Group scope (format: `/providers/Microsoft.Management/managementGroups/{name}`):
-
-```hcl
-module "attribute-sensor" {
-  source  = "ZouzIO/attribute-sensor/azurerm"
-  version = "2.0.1"
-
-  organization_id = var.organization_id
-  token           = var.token
-
-  billing_account_id = "/providers/Microsoft.Management/managementGroups/00000000-0000-0000-0000-000000000000"
-}
-```
-
 ## Skipping the Billing Export creation
 If you want to skip the creation of the Billing Export and associated resources (e.g. while having a billing account-scoped Billing Export), you can set the `create_costs_export` input variable to `false`, i.e.:
 ```hcl
 module "attribute-sensor" {
   source  = "ZouzIO/attribute-sensor/azurerm"
-  version = "2.0.1"
+  version = "~> 2"
 
   organization_id     = var.organization_id
   token               = var.token
@@ -128,26 +114,33 @@ module "attribute-sensor" {
 ```
 In that case, only the Resource Group and Managed Identity will be created, skipping the Storage Account and Billing Export creation.
 ## Registering all subscriptions under a management group
-By default the module registers only the provider's default subscription with Attribute and creates the `Monitoring Reader` role assignment at that subscription's scope. Setting `scope_wide_registration = true` switches the module to a management-group-wide mode:
+By default the module registers only the provider's default subscription with Attribute and creates the `Monitoring Reader` role assignment at that subscription's scope. Setting `scope_wide_registration = true` switches the module to a management-group-wide mode driven by the `management_group_ids` list input:
 
-- The `Monitoring Reader` role assignment is created at the management group scope given by `billing_account_id`, so it inherits down to every child subscription.
-- The module enumerates every subscription under the management group recursively (via the `all_subscription_ids` attribute of `azurerm_management_group`, which includes subscriptions in nested management groups) and POSTs a registration to Attribute for each one.
+- A `Monitoring Reader` role assignment is created at **each** management group listed in `management_group_ids`, so it inherits down to every child subscription of every listed MG.
+- The module enumerates every subscription under each listed management group recursively (via the `all_subscription_ids` attribute of `azurerm_management_group`, which includes subscriptions in nested management groups), deduplicates the union, and POSTs a registration to Attribute for each one.
 - Cost Management Export fields (`storage_container`, `storage_dir`, `storage_account_url`) are sent **only** in the registration for the provider's default subscription — that is the only subscription where the storage account and export resources are actually created.
+- `billing_account_id` is independent from `management_group_ids` and only controls the Cost Management Export anchor (`parent_id`). Role assignments and subscription enumeration are driven entirely by `management_group_ids`.
 
 Requirements when this flag is on:
-- `billing_account_id` **must** be a management group resource ID in the form `/providers/Microsoft.Management/managementGroups/{name}`. A billing-account path will fail the precondition.
-- The provider's default subscription **must** be a member of the target management group (directly or via a child management group). The module fails fast otherwise.
+- `management_group_ids` **must** be a non-empty list. Each entry must be a management group resource ID in the form `/providers/Microsoft.Management/managementGroups/{name}`; other shapes fail variable validation.
+- The provider's default subscription **must** be a member of at least one of the listed management groups (directly or via a child management group). The module fails fast otherwise.
 
 ```hcl
 module "attribute-sensor" {
   source  = "ZouzIO/attribute-sensor/azurerm"
-  version = "2.0.1"
+  version = "~> 2"
 
   organization_id = var.organization_id
   token           = var.token
 
   scope_wide_registration = true
-  billing_account_id      = "/providers/Microsoft.Management/managementGroups/00000000-0000-0000-0000-000000000000"
+  management_group_ids = [
+    "/providers/Microsoft.Management/managementGroups/00000000-0000-0000-0000-000000000000",
+  ]
+
+  # Optional: anchor the Cost Management Export at a billing account instead
+  # of the provider's default subscription.
+  billing_account_id = "/providers/Microsoft.Billing/billingAccounts/0000000-0000-0000-0000-000000000000:00000002-0002-0002-0002-000000000000_2019-05-31"
 }
 ```
 ## Adding tags to created resources
@@ -234,6 +227,7 @@ No modules.
 | <a name="input_general_tags"></a> [general\_tags](#input\_general\_tags) | (*Optional*) The tags to apply to the resources created by the module. | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | (*Optional*) Resources location. Defaults to East US. | `string` | `"East US"` | no |
 | <a name="input_managed_identity_name"></a> [managed\_identity\_name](#input\_managed\_identity\_name) | (*Optional*) The name of the managed identity. If not provided, the managed identity name will be `Attribute`. | `string` | `"Attribute"` | no |
+| <a name="input_management_group_ids"></a> [management\_group\_ids](#input\_management\_group\_ids) | (*Optional*) List of management group resource IDs (each `/providers/Microsoft.Management/managementGroups/{name}`). Required when `scope_wide_registration = true`: the module creates a `Monitoring Reader` role assignment at each listed management group and registers every subscription under any of them (recursively, via `all_subscription_ids`). | `list(string)` | `[]` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | (*Optional*) The name of the resource group. If not provided, the resource group name will be `Attribute`. | `string` | `"Attribute"` | no |
 | <a name="input_resource_tags"></a> [resource\_tags](#input\_resource\_tags) | (*Optional*) Additional tags to apply to specific resources created by the module. | `map(map(string))` | `{}` | no |
 | <a name="input_scope_wide_registration"></a> [scope\_wide\_registration](#input\_scope\_wide\_registration) | (*Optional*) When true, the `Monitoring Reader` role assignment is created at the scope given by `billing_account_id` (which must be a management group resource ID), and the module registers every subscription under that management group (recursively) with Attribute instead of only the provider's default subscription. Cost Management Export fields are only sent in the registration for the provider's default subscription. | `bool` | `false` | no |
@@ -245,6 +239,7 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_client_id"></a> [client\_id](#output\_client\_id) | n/a |
+| <a name="output_cost_export_id"></a> [cost\_export\_id](#output\_cost\_export\_id) | Full Azure resource ID of the Cost Management Export. Null when `create_costs_export = false`. The leading segment up to `/providers/Microsoft.CostManagement/exports/<name>` is the scope (`parent_id`) the export is anchored at. |
 | <a name="output_registered_subscription_ids"></a> [registered\_subscription\_ids](#output\_registered\_subscription\_ids) | Subscription IDs that the module registered with Attribute. A single-element list (the provider's default subscription) when `scope_wide_registration = false`; every subscription under `billing_account_id` (recursively, via `all_subscription_ids`) when `true`. |
 | <a name="output_registration_details"></a> [registration\_details](#output\_registration\_details) | Details of the registration request sent to the Attribute Sensor API. |
 | <a name="output_storage_account_url"></a> [storage\_account\_url](#output\_storage\_account\_url) | n/a |

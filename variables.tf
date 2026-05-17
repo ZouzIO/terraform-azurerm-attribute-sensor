@@ -79,3 +79,17 @@ variable "general_tags" {
   default     = {}
   description = "(*Optional*) The tags to apply to the resources created by the module."
 }
+
+variable "management_group_ids" {
+  type        = list(string)
+  description = "(*Optional*) List of management group resource IDs (each `/providers/Microsoft.Management/managementGroups/{name}`). Required when `scope_wide_registration = true`: the module creates a `Monitoring Reader` role assignment at each listed management group and registers every subscription under any of them (recursively, via `all_subscription_ids`)."
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for id in var.management_group_ids :
+      can(regex("^/providers/Microsoft\\.Management/managementGroups/.+$", id))
+    ])
+    error_message = "Each entry in management_group_ids must be a management group resource ID in the form /providers/Microsoft.Management/managementGroups/{name}."
+  }
+}

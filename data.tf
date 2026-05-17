@@ -1,19 +1,19 @@
-data "azurerm_subscription" "this" {}
+data "azurerm_subscription" "this" {
+  lifecycle {
+    precondition {
+      condition     = !var.scope_wide_registration || length(var.management_group_ids) > 0
+      error_message = "scope_wide_registration = true requires management_group_ids to be a non-empty list."
+    }
+  }
+}
 
 data "modtm_module_source" "this" {
   module_path = path.module
 }
 
 data "azurerm_management_group" "this" {
-  count = var.scope_wide_registration ? 1 : 0
-  name  = local.management_group_name
-
-  lifecycle {
-    precondition {
-      condition     = local.management_group_name != null
-      error_message = "When scope_wide_registration = true, billing_account_id must be a management group resource ID in the form /providers/Microsoft.Management/managementGroups/{name}."
-    }
-  }
+  for_each = local.management_group_names
+  name     = each.value
 }
 
 data "azurerm_subscription" "registration" {

@@ -37,3 +37,8 @@ output "registered_subscription_ids" {
   description = "Subscription IDs that the module registered with Attribute. A single-element list (the provider's default subscription) when `scope_wide_registration = false`; every subscription under `billing_account_id` (recursively, via `all_subscription_ids`) when `true`."
   value       = local.registration_subscription_ids
 }
+
+output "cost_export_id" {
+  description = "Full Azure resource ID of the Cost Management Export. Null when `create_costs_export = false`. The leading segment up to `/providers/Microsoft.CostManagement/exports/<name>` is the scope (`parent_id`) the export is anchored at."
+  value       = var.create_costs_export ? azapi_resource.export[0].id : null
+}

@@ -139,7 +139,6 @@ module "attribute-sensor" {
   }
 }
 ```
-Only the storage account's resource ID is required — the module constructs the blob endpoint URL from the account name in it, so no separate URL input is needed.
 ## Registering all subscriptions under a management group
 By default the module registers only the provider's default subscription with Attribute and creates the `Monitoring Reader` role assignment at that subscription's scope. Setting `scope_wide_registration = true` switches the module to a management-group-wide mode driven by the `management_group_ids` list input:
 
@@ -168,8 +167,6 @@ module "attribute-sensor" {
   # Optional: anchor the Cost Management Export at a billing account instead
   # of the provider's default subscription.
   billing_account_id = "/providers/Microsoft.Billing/billingAccounts/0000000-0000-0000-0000-000000000000:00000002-0002-0002-0002-000000000000_2019-05-31"
-}
-```
 ## Adding tags to created resources
 Two inputs can be used to add tags to the created resources:
 - `general_tags` - a map of tags to be added to all resources provisioned by the module
@@ -214,10 +211,10 @@ will result in the following tags for the S3 bucket:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azapi"></a> [azapi](#provider\_azapi) | >= 2.0.0, < 3.0 |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.0, <5.0 |
-| <a name="provider_http"></a> [http](#provider\_http) | n/a |
-| <a name="provider_modtm"></a> [modtm](#provider\_modtm) | >= 0.3.5 |
+| <a name="provider_azapi"></a> [azapi](#provider\_azapi) | 2.6.1 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.44.0 |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.5.0 |
+| <a name="provider_modtm"></a> [modtm](#provider\_modtm) | 0.3.5 |
 
 ## Modules
 
@@ -252,7 +249,7 @@ No modules.
 | <a name="input_blob_storage_allowlist"></a> [blob\_storage\_allowlist](#input\_blob\_storage\_allowlist) | (*Optional*) Whether to enforce the allowlist on the storage account. Defaults to false. | `bool` | `false` | no |
 | <a name="input_cost_export_name"></a> [cost\_export\_name](#input\_cost\_export\_name) | (*Optional*) The name of the Cost Management Export. If not provided, a default name will be generated. | `string` | `"AttributeExport"` | no |
 | <a name="input_create_costs_export"></a> [create\_costs\_export](#input\_create\_costs\_export) | (*Optional*) Whether to create the Cost Management Export. Defaults to true. | `bool` | `true` | no |
-| <a name="input_existing_export"></a> [existing\_export](#input\_existing\_export) | (*Optional*) Use a pre-existing Cost Management Export instead of having the module create one. When set, the module grants the managed identity `Storage Blob Data Reader` on `storage_account_id` and forwards `storage_container`, `storage_dir`, the storage account's blob endpoint (derived from `storage_account_id`) and `storage_export_type` in the registration request — the same fields sent for a module-created export. `storage_export_type` must be either `csv` or `parquet-snappy`. Mutually exclusive with `create_costs_export`: set `create_costs_export = false` when providing this. | <pre>object({<br>    storage\_container   = string<br>    storage\_dir         = string<br>    storage\_account\_id  = string<br>    storage\_export\_type = string<br>  })</pre> | `null` | no |
+| <a name="input_existing_export"></a> [existing\_export](#input\_existing\_export) | (*Optional*) Use a pre-existing Cost Management Export instead of having the module create one. When set, the module grants the managed identity `Storage Blob Data Reader` on `storage_account_id` and forwards `storage_container`, `storage_dir`, the storage account's blob endpoint (derived from `storage_account_id`) and `storage_export_type` in the registration request — the same fields sent for a module-created export. `storage_export_type` must be either `csv` or `parquet-snappy`. Mutually exclusive with `create_costs_export`: set `create_costs_export = false` when providing this. | <pre>object({<br>    storage_container   = string<br>    storage_dir         = string<br>    storage_account_id  = string<br>    storage_export_type = string<br>  })</pre> | `null` | no |
 | <a name="input_general_tags"></a> [general\_tags](#input\_general\_tags) | (*Optional*) The tags to apply to the resources created by the module. | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | (*Optional*) Resources location. Defaults to East US. | `string` | `"East US"` | no |
 | <a name="input_managed_identity_name"></a> [managed\_identity\_name](#input\_managed\_identity\_name) | (*Optional*) The name of the managed identity. If not provided, the managed identity name will be `Attribute`. | `string` | `"Attribute"` | no |

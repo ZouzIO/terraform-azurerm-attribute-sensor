@@ -113,6 +113,33 @@ module "attribute-sensor" {
 }
 ```
 In that case, only the Resource Group and Managed Identity will be created, skipping the Storage Account and Billing Export creation.
+## Using an existing Cost Management Export
+If a Cost Management Export already exists (created outside this module), set `create_costs_export = false` and pass its details via the `existing_export` object. The module then:
+- grants the managed identity `Storage Blob Data Reader` on the export's storage account (`storage_account_id`), and
+- forwards `storage_container`, `storage_dir`, the storage account's blob endpoint (constructed from the account name in `storage_account_id`, assuming the Azure public cloud `*.blob.core.windows.net` suffix) and `storage_export_type` in the registration request — the same fields it sends for a module-created export.
+
+The export's storage account may live in a different subscription than the provider's; the module never reads it, it only constructs the endpoint and assigns the role at its scope (so the deploying principal needs `Microsoft.Authorization/roleAssignments/write` on that storage account).
+
+`storage_export_type` must be either `csv` or `parquet-snappy`. `existing_export` is mutually exclusive with `create_costs_export`.
+
+```hcl
+module "attribute-sensor" {
+  source  = "ZouzIO/attribute-sensor/azurerm"
+  version = "~> 2"
+
+  organization_id     = var.organization_id
+  token               = var.token
+
+  create_costs_export = false
+  existing_export = {
+    storage_container   = "exports"
+    storage_dir         = "focus/MyExistingExport"
+    storage_account_id  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyRG/providers/Microsoft.Storage/storageAccounts/mystorageaccount"
+    storage_export_type = "parquet-snappy"
+  }
+}
+```
+Only the storage account's resource ID is required — the module constructs the blob endpoint URL from the account name in it, so no separate URL input is needed.
 ## Registering all subscriptions under a management group
 By default the module registers only the provider's default subscription with Attribute and creates the `Monitoring Reader` role assignment at that subscription's scope. Setting `scope_wide_registration = true` switches the module to a management-group-wide mode driven by the `management_group_ids` list input:
 
@@ -203,6 +230,7 @@ No modules.
 | [azapi_resource.export](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource) | resource |
 | [azurerm_federated_identity_credential.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/federated_identity_credential) | resource |
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
+| [azurerm_role_assignment.existing_export](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.storage_account](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.subscription](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
@@ -224,6 +252,7 @@ No modules.
 | <a name="input_blob_storage_allowlist"></a> [blob\_storage\_allowlist](#input\_blob\_storage\_allowlist) | (*Optional*) Whether to enforce the allowlist on the storage account. Defaults to false. | `bool` | `false` | no |
 | <a name="input_cost_export_name"></a> [cost\_export\_name](#input\_cost\_export\_name) | (*Optional*) The name of the Cost Management Export. If not provided, a default name will be generated. | `string` | `"AttributeExport"` | no |
 | <a name="input_create_costs_export"></a> [create\_costs\_export](#input\_create\_costs\_export) | (*Optional*) Whether to create the Cost Management Export. Defaults to true. | `bool` | `true` | no |
+| <a name="input_existing_export"></a> [existing\_export](#input\_existing\_export) | (*Optional*) Use a pre-existing Cost Management Export instead of having the module create one. When set, the module grants the managed identity `Storage Blob Data Reader` on `storage_account_id` and forwards `storage_container`, `storage_dir`, the storage account's blob endpoint (derived from `storage_account_id`) and `storage_export_type` in the registration request — the same fields sent for a module-created export. `storage_export_type` must be either `csv` or `parquet-snappy`. Mutually exclusive with `create_costs_export`: set `create_costs_export = false` when providing this. | <pre>object({<br>    storage\_container   = string<br>    storage\_dir         = string<br>    storage\_account\_id  = string<br>    storage\_export\_type = string<br>  })</pre> | `null` | no |
 | <a name="input_general_tags"></a> [general\_tags](#input\_general\_tags) | (*Optional*) The tags to apply to the resources created by the module. | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | (*Optional*) Resources location. Defaults to East US. | `string` | `"East US"` | no |
 | <a name="input_managed_identity_name"></a> [managed\_identity\_name](#input\_managed\_identity\_name) | (*Optional*) The name of the managed identity. If not provided, the managed identity name will be `Attribute`. | `string` | `"Attribute"` | no |

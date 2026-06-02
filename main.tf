@@ -45,6 +45,13 @@ resource "azurerm_user_assigned_identity" "this" {
   resource_group_name = azurerm_resource_group.this.name
 
   tags = local.user_assigned_identity_tags
+
+  lifecycle {
+    precondition {
+      condition     = !(var.create_costs_export && var.existing_export != null)
+      error_message = "existing_export is mutually exclusive with create_costs_export. Set create_costs_export = false when providing existing_export."
+    }
+  }
 }
 
 resource "azurerm_federated_identity_credential" "this" {
@@ -60,6 +67,14 @@ resource "azurerm_role_assignment" "storage_account" {
   count = var.create_costs_export ? 1 : 0
 
   scope                = azurerm_storage_account.this.0.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = azurerm_user_assigned_identity.this.principal_id
+}
+
+resource "azurerm_role_assignment" "existing_export" {
+  count = var.existing_export != null ? 1 : 0
+
+  scope                = var.existing_export.storage_account_id
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = azurerm_user_assigned_identity.this.principal_id
 }

@@ -32,6 +32,12 @@ locals {
     for mg in data.azurerm_management_group.this : mg.all_subscription_ids
   ])) : [data.azurerm_subscription.this.subscription_id]
 
+  # Blob endpoint derived from the storage account ID rather than looked up via
+  # a data source: the existing export may live in a different subscription than
+  # the provider's, where an azurerm data source cannot read it. Assumes the
+  # Azure public cloud blob suffix.
+  existing_export_storage_account_url = var.existing_export != null ? "https://${regex("(?i)/storageAccounts/([^/]+)$", var.existing_export.storage_account_id)[0]}.blob.core.windows.net/" : null
+
   resource_group_tags         = merge(try(var.resource_tags["resource_group"], {}), var.general_tags)
   storage_account_tags        = merge(try(var.resource_tags["storage_account"], {}), var.general_tags)
   user_assigned_identity_tags = merge(try(var.resource_tags["user_assigned_identity"], {}), var.general_tags)

@@ -14,6 +14,27 @@ variable "create_costs_export" {
   default     = true
 }
 
+variable "existing_export" {
+  type = object({
+    storage_container   = string
+    storage_dir         = string
+    storage_account_id  = string
+    storage_export_type = string
+  })
+  description = "(*Optional*) Use a pre-existing Cost Management Export instead of having the module create one. When set, the module grants the managed identity `Storage Blob Data Reader` on `storage_account_id` and forwards `storage_container`, `storage_dir`, the storage account's blob endpoint (derived from `storage_account_id`) and `storage_export_type` in the registration request — the same fields sent for a module-created export. `storage_export_type` must be either `csv` or `parquet-snappy`. Mutually exclusive with `create_costs_export`: set `create_costs_export = false` when providing this."
+  default     = null
+
+  validation {
+    condition     = var.existing_export == null || contains(["csv", "parquet-snappy"], try(var.existing_export.storage_export_type, ""))
+    error_message = "existing_export.storage_export_type must be either \"csv\" or \"parquet-snappy\"."
+  }
+
+  validation {
+    condition     = var.existing_export == null || can(regex("(?i)/resourceGroups/[^/]+/providers/Microsoft\\.Storage/storageAccounts/[^/]+$", var.existing_export.storage_account_id))
+    error_message = "existing_export.storage_account_id must be a storage account resource ID of the form /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Storage/storageAccounts/{name}."
+  }
+}
+
 variable "billing_account_id" {
   type        = string
   description = "(*Optional*) The resource ID used as the Cost Management Export's `parent_id`. Accepts any supported Cost Management scope — most commonly a Billing Account (`/providers/Microsoft.Billing/billingAccounts/{id}`) or a Management Group (`/providers/Microsoft.Management/managementGroups/{name}`). When `scope_wide_registration = true`, this must be a management group resource ID. The variable name is historical. If empty, the export is anchored at the provider's default subscription."

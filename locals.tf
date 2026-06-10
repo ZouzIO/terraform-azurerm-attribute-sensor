@@ -32,11 +32,32 @@ locals {
     for mg in data.azurerm_management_group.this : mg.all_subscription_ids
   ])) : [data.azurerm_subscription.this.subscription_id]
 
-  # Blob endpoint derived from the storage account ID rather than looked up via
-  # a data source: the existing export may live in a different subscription than
-  # the provider's, where an azurerm data source cannot read it. Assumes the
-  # Azure public cloud blob suffix.
-  existing_export_storage_account_url = var.existing_export != null ? "https://${regex("(?i)/storageAccounts/([^/]+)$", var.existing_export.storage_account_id)[0]}.blob.core.windows.net/" : null
+  # True when at least one existing export was supplied. Treats a null or empty
+  # list identically: the module creates no role assignments and sends no
+  # storage_info in that case.
+  has_existing_export = var.existing_exports != null ? length(var.existing_exports) > 0 : false
+
+  # One storage_info entry per existing export, forwarded verbatim in the
+  # registration's `storage_info` list. The blob endpoint is derived from the
+  # storage account ID rather than looked up via a data source: an existing
+  # export may live in a different subscription than the provider's, where an
+  # azurerm data source cannot read it. Assumes the Azure public cloud blob
+  # suffix.
+  existing_export_storage_infos = local.has_existing_export ? [
+    for e in var.existing_exports : {
+      storage_container   = e.storage_container
+      storage_dir         = e.storage_dir
+      storage_account_url = "https://${regex("(?i)/storageAccounts/([^/]+)$", e.storage_account_id)[0]}.blob.core.windows.net/"
+      storage_export_type = e.storage_export_type
+    }
+  ] : []
+
+  # Distinct storage account IDs across all existing exports — the scope for the
+  # Storage Blob Data Reader role assignments. Deduped so multiple exports in the
+  # same account produce a single assignment.
+  existing_export_storage_account_ids = local.has_existing_export ? toset([
+    for e in var.existing_exports : e.storage_account_id
+  ]) : toset([])
 
   resource_group_tags         = merge(try(var.resource_tags["resource_group"], {}), var.general_tags)
   storage_account_tags        = merge(try(var.resource_tags["storage_account"], {}), var.general_tags)

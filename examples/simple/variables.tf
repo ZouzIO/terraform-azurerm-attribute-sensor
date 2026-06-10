@@ -38,14 +38,14 @@ variable "create_costs_export" {
   default     = true
 }
 
-variable "existing_export" {
-  type = object({
+variable "existing_exports" {
+  type = list(object({
     storage_container   = string
     storage_dir         = string
     storage_account_id  = string
     storage_export_type = string
-  })
-  description = "(*Optional*) Passed through to the module's `existing_export` input."
+  }))
+  description = "(*Optional*) Passed through to the module's `existing_exports` input."
   default     = null
 }
 

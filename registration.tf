@@ -28,11 +28,10 @@ data "http" "attribute_registration" {
         storage_dir         = "focus/${var.cost_export_name}"
         storage_account_url = azurerm_storage_account.this[0].primary_blob_endpoint
       } : {},
-      (each.key == data.azurerm_subscription.this.subscription_id && var.existing_export != null) ? {
-        storage_container   = var.existing_export.storage_container
-        storage_dir         = var.existing_export.storage_dir
-        storage_account_url = local.existing_export_storage_account_url
-        storage_export_type = var.existing_export.storage_export_type
+      (each.key == data.azurerm_subscription.this.subscription_id && local.has_existing_export) ? {
+        # Existing exports are sent only as the storage_info list — the legacy
+        # singular storage_* fields are deliberately omitted here.
+        storage_info = local.existing_export_storage_infos
       } : {}
     )
   )
@@ -41,7 +40,7 @@ data "http" "attribute_registration" {
     azurerm_role_assignment.subscription,
     azurerm_federated_identity_credential.this,
     azurerm_role_assignment.storage_account,
-    azurerm_role_assignment.existing_export,
+    azurerm_role_assignment.existing_exports,
     azapi_resource.export
   ]
 }

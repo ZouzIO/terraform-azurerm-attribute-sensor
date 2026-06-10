@@ -32,6 +32,18 @@ locals {
     for mg in data.azurerm_management_group.this : mg.all_subscription_ids
   ])) : [data.azurerm_subscription.this.subscription_id]
 
+  # The single subscription whose registration carries the billing account and
+  # cost-export details (created export or existing_exports). Always the
+  # provider's default subscription — the same one the Cost Management Export,
+  # storage account and storage role assignment are anchored at. It is pinned by
+  # subscription id (not by list order or index), so the deployment that
+  # receives the billing/cost info never shifts between applies, even in a
+  # scope-wide installation where many subscriptions register. Every other
+  # subscription registers with no billing info at all. In scope-wide mode the
+  # precondition on azurerm_user_assigned_identity guarantees this subscription
+  # is part of the registered set.
+  cost_registration_subscription_id = data.azurerm_subscription.this.subscription_id
+
   # True when at least one existing export was supplied. Treats a null or empty
   # list identically: the module creates no role assignments and sends no
   # storage_info in that case.

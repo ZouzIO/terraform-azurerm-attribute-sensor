@@ -12,23 +12,32 @@ data "http" "attribute_registration" {
   request_body = jsonencode(
     merge(
       {
-        organization_id    = var.organization_id
-        tenant_id          = each.value.tenant_id
-        subscription_id    = each.value.subscription_id
-        subscription_name  = each.value.display_name
-        client_id          = azurerm_user_assigned_identity.this.client_id
-        billing_account_id = var.billing_account_id != "" ? var.billing_account_id : null
+        organization_id   = var.organization_id
+        tenant_id         = each.value.tenant_id
+        subscription_id   = each.value.subscription_id
+        subscription_name = each.value.display_name
+        client_id         = azurerm_user_assigned_identity.this.client_id
         module_info = {
           version = data.modtm_module_source.this.module_version
           source  = data.modtm_module_source.this.module_source
         }
       },
-      (each.key == data.azurerm_subscription.this.subscription_id && var.create_costs_export) ? {
+      # Billing account and cost-export details are sent on exactly one
+      # registration — local.cost_registration_subscription_id (the provider's
+      # default subscription). In a scope-wide installation every other
+      # subscription registers without any billing info. The target is pinned by
+      # subscription id, so it never moves between applies. Each piece is a
+      # separate merge argument (rather than a nested merge) to keep every
+      # conditional's branches type-consistent.
+      each.key == local.cost_registration_subscription_id ? {
+        billing_account_id = var.billing_account_id != "" ? var.billing_account_id : null
+      } : {},
+      (each.key == local.cost_registration_subscription_id && var.create_costs_export) ? {
         storage_container   = azurerm_storage_container.this[0].name
         storage_dir         = "focus/${var.cost_export_name}"
         storage_account_url = azurerm_storage_account.this[0].primary_blob_endpoint
       } : {},
-      (each.key == data.azurerm_subscription.this.subscription_id && local.has_existing_export) ? {
+      (each.key == local.cost_registration_subscription_id && local.has_existing_export) ? {
         # Existing exports are sent only as the storage_info list — the legacy
         # singular storage_* fields are deliberately omitted here.
         storage_info = local.existing_export_storage_infos

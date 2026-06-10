@@ -14,24 +14,28 @@ variable "create_costs_export" {
   default     = true
 }
 
-variable "existing_export" {
-  type = object({
+variable "existing_exports" {
+  type = list(object({
     storage_container   = string
     storage_dir         = string
     storage_account_id  = string
     storage_export_type = string
-  })
-  description = "(*Optional*) Use a pre-existing Cost Management Export instead of having the module create one. When set, the module grants the managed identity `Storage Blob Data Reader` on `storage_account_id` and forwards `storage_container`, `storage_dir`, the storage account's blob endpoint (derived from `storage_account_id`) and `storage_export_type` in the registration request — the same fields sent for a module-created export. `storage_export_type` must be either `csv` or `parquet-snappy`. Mutually exclusive with `create_costs_export`: set `create_costs_export = false` when providing this."
+  }))
+  description = "(*Optional*) Use one or more pre-existing Cost Management Exports instead of having the module create one. When set, the module grants the managed identity `Storage Blob Data Reader` on each entry's `storage_account_id` and forwards every entry's `storage_container`, `storage_dir`, the storage account's blob endpoint (derived from `storage_account_id`) and `storage_export_type` as the registration request's `storage_info` list. Each entry's `storage_export_type` must be either `csv` or `parquet-snappy`. Mutually exclusive with `create_costs_export`: set `create_costs_export = false` when providing this."
   default     = null
 
   validation {
-    condition     = var.existing_export == null || contains(["csv", "parquet-snappy"], try(var.existing_export.storage_export_type, ""))
-    error_message = "existing_export.storage_export_type must be either \"csv\" or \"parquet-snappy\"."
+    condition = var.existing_exports == null || alltrue([
+      for e in var.existing_exports : contains(["csv", "parquet-snappy"], try(e.storage_export_type, ""))
+    ])
+    error_message = "Each existing_exports entry's storage_export_type must be either \"csv\" or \"parquet-snappy\"."
   }
 
   validation {
-    condition     = var.existing_export == null || can(regex("(?i)/resourceGroups/[^/]+/providers/Microsoft\\.Storage/storageAccounts/[^/]+$", var.existing_export.storage_account_id))
-    error_message = "existing_export.storage_account_id must be a storage account resource ID of the form /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Storage/storageAccounts/{name}."
+    condition = var.existing_exports == null || alltrue([
+      for e in var.existing_exports : can(regex("(?i)/resourceGroups/[^/]+/providers/Microsoft\\.Storage/storageAccounts/[^/]+$", e.storage_account_id))
+    ])
+    error_message = "Each existing_exports entry's storage_account_id must be a storage account resource ID of the form /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Storage/storageAccounts/{name}."
   }
 }
 

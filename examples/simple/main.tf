@@ -15,5 +15,5 @@ module "attribute-sensor" {
   scope_wide_registration = var.scope_wide_registration
   management_group_ids    = var.management_group_ids
   create_costs_export     = var.create_costs_export
-  existing_export         = var.existing_export
+  existing_exports        = var.existing_exports
 }

@@ -48,8 +48,8 @@ resource "azurerm_user_assigned_identity" "this" {
 
   lifecycle {
     precondition {
-      condition     = !(var.create_costs_export && var.existing_export != null)
-      error_message = "existing_export is mutually exclusive with create_costs_export. Set create_costs_export = false when providing existing_export."
+      condition     = !(var.create_costs_export && local.has_existing_export)
+      error_message = "existing_exports is mutually exclusive with create_costs_export. Set create_costs_export = false when providing existing_exports."
     }
   }
 }
@@ -71,10 +71,10 @@ resource "azurerm_role_assignment" "storage_account" {
   principal_id         = azurerm_user_assigned_identity.this.principal_id
 }
 
-resource "azurerm_role_assignment" "existing_export" {
-  count = var.existing_export != null ? 1 : 0
+resource "azurerm_role_assignment" "existing_exports" {
+  for_each = local.existing_export_storage_account_ids
 
-  scope                = var.existing_export.storage_account_id
+  scope                = each.value
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = azurerm_user_assigned_identity.this.principal_id
 }
